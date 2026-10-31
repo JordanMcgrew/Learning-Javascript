@@ -45,5 +45,6 @@ My personal documentation as I learn JavaScript. Each topic gets its own note in
 - Code examples illustrate a concept and show the expected output in a comment. They don't need to be copy-paste ready.
 - Notes stay short and scannable: a one-line definition, syntax, gotchas, then examples.
 - Related topics link to each other with relative paths, so Zed can jump between them.
+- `dashboard/`: progress dashboard (open `dashboard/index.html`); updated only when I ask
 - `roadmap.md`: the full JavaScript path, phase by phase, with a progress history table
 - `_context.md` holds the conversation history and conventions, so future sessions can pick up where we left off.

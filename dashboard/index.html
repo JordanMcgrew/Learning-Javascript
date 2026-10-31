@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JavaScript Learning Dashboard</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb;
+  --ink: #0b0b0b; --ink2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,.10);
+  --s1: #2a78d6; --s2: #eb6834;
+  --meter-track: #cde2fb; --meter-fill: #2a78d6;
+  --l0: #e1e0d9; --l1: #86b6ef; --l2: #5598e7; --l3: #256abf; --l4: #104281;
+  --on-l1: #0b0b0b; --on-l2: #0b0b0b; --on-l3: #ffffff; --on-l4: #ffffff;
+  --good: #006300;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19;
+    --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,.10);
+    --s1: #3987e5; --s2: #d95926;
+    --meter-track: #0d366b; --meter-fill: #3987e5;
+    --l0: #2f2f2d; --l1: #184f95; --l2: #256abf; --l3: #3987e5; --l4: #86b6ef;
+    --on-l1: #ffffff; --on-l2: #ffffff; --on-l3: #0b0b0b; --on-l4: #0b0b0b;
+    --good: #0ca30c;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19;
+  --ink: #f0efec; --ink2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,.10);
+  --s1: #3987e5; --s2: #d95926;
+  --meter-track: #0d366b; --meter-fill: #3987e5;
+  --l0: #2f2f2d; --l1: #184f95; --l2: #256abf; --l3: #3987e5; --l4: #86b6ef;
+  --on-l1: #ffffff; --on-l2: #ffffff; --on-l3: #0b0b0b; --on-l4: #0b0b0b;
+  --good: #0ca30c;
+}
+* { box-sizing: border-box; }
+html { background: var(--page); }
+body {
+  margin: 0; background: var(--page); color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.wrap { max-width: 1040px; margin: 0 auto; padding: 24px 16px 64px; }
+header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+h1 { font-size: 24px; line-height: 1.2; margin: 0; font-weight: 650; }
+.sub { color: var(--ink2); font-size: 13px; margin-top: 4px; }
+.sub a, .foot a { color: var(--ink2); }
+button, select {
+  font: inherit; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--ring); border-radius: 8px; padding: 6px 12px; cursor: pointer;
+}
+button:hover, select:hover { border-color: var(--axis); }
+button:focus-visible, select:focus-visible, summary:focus-visible, [tabindex]:focus-visible, a:focus-visible {
+  outline: 2px solid var(--s1); outline-offset: 2px;
+}
+.card { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+h2 { font-size: 16px; margin: 0 0 2px; font-weight: 650; }
+.h2sub { color: var(--ink2); font-size: 13px; margin: 0 0 14px; }
+.scopebar { display: inline-flex; border: 1px solid var(--ring); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.scopebar button { border: 0; border-radius: 0; background: transparent; padding: 7px 14px; }
+.scopebar button[aria-pressed="true"] { background: var(--meter-fill); color: #fff; }
+:root[data-theme="dark"] .scopebar button[aria-pressed="true"] { color: #0b0b0b; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .scopebar button[aria-pressed="true"] { color: #0b0b0b; } }
+
+/* hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 28px; align-items: center; }
+.eyebrow { color: var(--ink2); font-size: 13px; }
+.hero-fig { font-size: 72px; line-height: 1; font-weight: 650; letter-spacing: -1px; margin: 4px 0 14px; }
+.hero-fig span { font-size: 32px; font-weight: 500; color: var(--ink2); margin-left: 2px; letter-spacing: 0; }
+.meter { height: 10px; border-radius: 5px; background: var(--meter-track); overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--meter-fill); border-radius: 5px; min-width: 4px; }
+.hero-sub { color: var(--ink2); font-size: 13px; margin: 12px 0 0; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.tile { border: 1px solid var(--ring); border-radius: 10px; padding: 12px 14px; }
+.tile .lab { color: var(--ink2); font-size: 12px; }
+.tile .val { font-size: 26px; font-weight: 650; line-height: 1.2; margin-top: 2px; }
+.tile .delta { font-size: 12px; color: var(--ink2); margin-top: 2px; }
+.tile .delta.up { color: var(--good); }
+
+/* segmented bars */
+.seg { display: flex; gap: 2px; overflow: hidden; }
+.seg.tall { height: 28px; border-radius: 4px; }
+.seg.thin { height: 8px; border-radius: 4px; }
+.seg span { display: block; min-width: 0; font-size: 12px; font-weight: 600; line-height: 28px; padding-left: 8px; white-space: nowrap; overflow: hidden; }
+.seg.tall span { border-radius: 4px; }
+.lv0 { background: var(--l0); color: var(--ink2); } .lv1 { background: var(--l1); color: var(--on-l1); }
+.lv2 { background: var(--l2); color: var(--on-l2); } .lv3 { background: var(--l3); color: var(--on-l3); }
+.lv4 { background: var(--l4); color: var(--on-l4); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 12px; font-size: 13px; color: var(--ink2); }
+.legend b { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
+.legend .ln { display: inline-block; width: 16px; height: 2px; vertical-align: 3px; margin-right: 6px; }
+.levelkey { margin: 10px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 4px 18px; font-size: 12px; color: var(--muted); }
+.levelkey b { color: var(--ink2); font-weight: 600; }
+
+/* areas */
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.controls label { color: var(--ink2); font-size: 13px; margin-right: 8px; }
+details.area { border-top: 1px solid var(--grid); }
+details.area:first-of-type { border-top: 0; }
+details.area summary {
+  list-style: none; cursor: pointer; display: grid; align-items: center; gap: 14px;
+  grid-template-columns: minmax(130px, 1.1fr) minmax(0, 2fr) 56px 76px; padding: 11px 4px;
+}
+details.area summary::-webkit-details-marker { display: none; }
+details.area summary:hover { background: color-mix(in srgb, var(--grid) 40%, transparent); }
+.aname { font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.aname::before { content: "\25B8"; color: var(--muted); font-size: 11px; transition: transform .15s; }
+details[open] .aname::before { transform: rotate(90deg); }
+.apct { font-weight: 650; text-align: right; }
+.acount { color: var(--muted); font-size: 12px; text-align: right; }
+.topics { list-style: none; margin: 0 0 12px; padding: 0 4px 0 22px; }
+.topics li { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 14px; align-items: center; padding: 6px 0; border-top: 1px dashed transparent; font-size: 14px; }
+.topics li + li { border-top: 1px solid var(--grid); }
+.tname { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.tier { font-size: 11px; color: var(--muted); border: 1px solid var(--grid); border-radius: 999px; padding: 0 7px; }
+.links a { color: var(--ink2); font-size: 12px; margin-left: 10px; }
+.lvl { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink2); min-width: 112px; justify-content: flex-end; }
+.pips { display: inline-flex; gap: 2px; }
+.pips i { width: 8px; height: 8px; border-radius: 2px; background: var(--grid); }
+.pips i.on { background: var(--s1); }
+.lvl.zero { color: var(--muted); }
+
+/* focus + milestones */
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cols .card { margin-bottom: 0; }
+.list { list-style: none; margin: 0; padding: 0; }
+.list li { padding: 8px 0; border-top: 1px solid var(--grid); }
+.list li:first-child { border-top: 0; }
+.list .why { display: block; color: var(--muted); font-size: 12px; }
+.empty { color: var(--muted); font-size: 13px; }
+.ms { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid var(--grid); }
+.ms li { position: relative; padding: 0 0 12px 12px; }
+.ms li::before { content: ""; position: absolute; left: -22px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--s1); border: 2px solid var(--surface); box-sizing: content-box; }
+.ms time { color: var(--muted); font-size: 12px; display: block; }
+
+/* chart */
+.chart { width: 100%; height: auto; display: block; overflow: visible; }
+.chart text { font-family: inherit; }
+.chart .tick { fill: var(--muted); font-size: 11px; }
+.chart .endlab { fill: var(--ink2); font-size: 12px; }
+.chart .hit { fill: transparent; cursor: pointer; }
+.chart .hit:hover + .pt, .chart .hit:focus + .pt { r: 6; }
+details.tbl { margin-top: 12px; font-size: 13px; color: var(--ink2); }
+details.tbl summary { cursor: pointer; }
+table { border-collapse: collapse; width: 100%; margin-top: 8px; font-size: 13px; }
+th, td { text-align: right; padding: 5px 8px; border-top: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+th:first-child, td:first-child { text-align: left; }
+th { color: var(--ink2); font-weight: 600; }
+
+#tip {
+  position: fixed; z-index: 10; pointer-events: none; opacity: 0; transition: opacity .08s;
+  background: var(--ink); color: var(--page); font-size: 12px; line-height: 1.4;
+  padding: 6px 9px; border-radius: 6px; max-width: 260px;
+}
+.foot { color: var(--muted); font-size: 12px; margin-top: 24px; }
+
+@media (max-width: 760px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-fig { font-size: 60px; }
+  .cols { grid-template-columns: 1fr; }
+  details.area summary { grid-template-columns: 1fr 52px; row-gap: 6px; }
+  details.area summary .seg { grid-column: 1 / -1; grid-row: 2; }
+  .acount { display: none; }
+  .topics li { grid-template-columns: 1fr auto; }
+  .topics .links { grid-column: 1 / -1; }
+  .links a { margin: 0 10px 0 0; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>JavaScript Learning Dashboard</h1>
+      <div class="sub" id="sub"></div>
+    </div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+      <div class="scopebar" id="scopebar" role="group" aria-label="Scope"></div>
+      <button id="themebtn" type="button" aria-label="Toggle light or dark theme">Theme</button>
+    </div>
+  </header>
+  <main id="app"></main>
+  <p class="foot" id="foot"></p>
+</div>
+<div id="tip" role="status" aria-live="polite"></div>
+
+<script src="progress-data.js"></script>
+<script>
+(function () {
+  var P = window.PROGRESS;
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var W = P.levels.map(function (l) { return l.weight; });
+  var LV = P.levels.map(function (l) { return l.name; });
+  var SCOPES = {
+    core: { tiers: ['c'], label: 'Core path', desc: 'the MDN fundamentals' },
+    ci:   { tiers: ['c', 'i'], label: 'Core + Intermediate', desc: 'fundamentals and intermediate topics' },
+    all:  { tiers: ['c', 'i', 'a'], label: 'Everything', desc: 'every topic on the map' }
+  };
+  var SCOPE_NAMES = { core: 'Core', ci: 'Core + Intermediate', all: 'All' };
+  var TIER = { c: 'Core', i: 'Intermediate', a: 'Advanced' };
+  var state = { scope: 'core', sort: 'order' };
+
+  function score(list) { return list.length ? list.reduce(function (s, t) { return s + W[t.level]; }, 0) / list.length : 0; }
+  function counts(list) { var c = LV.map(function () { return 0; }); list.forEach(function (t) { c[t.level]++; }); return c; }
+  function pct(x) { return Math.round(x * 1000) / 10; }
+  function fmt(x) { return (Math.round(x * 10) / 10).toString(); }
+  function inScope(t) { return SCOPES[state.scope].tiers.indexOf(t.tier) >= 0; }
+  function scopedTopics() { return P.areas.reduce(function (a, ar) { return a.concat(ar.topics.filter(inScope)); }, []); }
+  function mdnUrl(p) { return P.mdnBase + p; }
+  function dateLabel(d) { return new Date(d + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); }
+  function shortDate(d) { return new Date(d + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
+
+  function segBar(c, tall, name) {
+    var total = c.reduce(function (a, b) { return a + b; }, 0);
+    var label = name + ': ' + c.map(function (n, i) { return n + ' ' + LV[i]; }).join(', ');
+    var h = '<div class="seg ' + (tall ? 'tall' : 'thin') + '" role="img" aria-label="' + esc(label) + '">';
+    c.forEach(function (n, i) {
+      if (!n) return;
+      var share = Math.round(n / total * 100);
+      h += '<span class="lv' + i + '" style="flex:' + n + ' 1 0" data-n="' + n + '" data-tip="' + esc(LV[i] + ': ' + n + ' topic' + (n === 1 ? '' : 's') + ' (' + share + '%)') + '"' + (tall ? ' tabindex="0"' : '') + '></span>';
+    });
+    return h + '</div>';
+  }
+  function fitLabels() {
+    document.querySelectorAll('.seg.tall span').forEach(function (s) {
+      s.textContent = s.offsetWidth >= 34 ? s.getAttribute('data-n') : '';
+    });
+  }
+  function pips(level) {
+    var h = '<span class="pips" aria-hidden="true">';
+    for (var i = 1; i <= 4; i++) h += '<i' + (i <= level ? ' class="on"' : '') + '></i>';
+    return h + '</span>';
+  }
+
+  /* ---------- hero ---------- */
+  function hero() {
+    var list = scopedTopics(), c = counts(list), sc = SCOPES[state.scope];
+    var s = pct(score(list));
+    var all = P.areas.reduce(function (a, ar) { return a.concat(ar.topics); }, []);
+    var allScore = pct(score(all));
+    var started = P.areas.filter(function (a) { return a.topics.some(function (t) { return t.level > 0; }); }).length;
+    var hist = P.history, last = hist[hist.length - 1], prev = hist[hist.length - 2];
+    var delta = prev ? (allScore - prev.all) : null;
+    var dtxt = delta === null ? 'First snapshot' : (delta > 0 ? '+' + fmt(delta) + ' pts since ' + shortDate(prev.date) : (delta === 0 ? 'No change since ' + shortDate(prev.date) : fmt(delta) + ' pts since ' + shortDate(prev.date)));
+    var prac = c[3] + c[4], prog = c[1] + c[2];
+    return '<section class="card hero" aria-label="Summary">' +
+      '<div><div class="eyebrow">' + esc(sc.label) + ' understanding</div>' +
+      '<div class="hero-fig">' + fmt(s) + '<span>%</span></div>' +
+      '<div class="meter" role="img" aria-label="' + fmt(s) + ' percent"><i style="width:' + s + '%"></i></div>' +
+      '<p class="hero-sub">' + prac + ' of ' + list.length + ' topics Practiced or beyond. ' + prog + ' more are in progress (Seen or Learning).</p></div>' +
+      '<div class="tiles">' +
+        tile('Whole map', fmt(allScore) + '%', dtxt, delta > 0) +
+        tile('Practiced or beyond', String(prac), 'of ' + list.length + ' in scope') +
+        tile('In progress', String(prog), 'Seen or Learning') +
+        tile('Areas started', started + ' / ' + P.areas.length, 'MDN topic areas') +
+      '</div></section>';
+  }
+  function tile(l, v, d, up) {
+    return '<div class="tile"><div class="lab">' + esc(l) + '</div><div class="val">' + esc(v) + '</div><div class="delta' + (up ? ' up' : '') + '">' + esc(d) + '</div></div>';
+  }
+
+  /* ---------- composition ---------- */
+  function composition() {
+    var list = scopedTopics(), c = counts(list), sc = SCOPES[state.scope];
+    var legend = LV.map(function (n, i) { return '<span><b class="lv' + i + '"></b>' + esc(n) + '</span>'; }).join('');
+    var key = P.levels.map(function (l) { return '<li><b>' + esc(l.name) + '</b>: ' + esc(l.meaning) + '</li>'; }).join('');
+    return '<section class="card"><h2>Composition</h2><p class="h2sub">' + list.length + ' topics across ' + esc(sc.desc) + ', by how well I know them.</p>' +
+      segBar(c, true, 'Topics by level') +
+      '<div class="legend">' + legend + '</div><ul class="levelkey">' + key + '</ul></section>';
+  }
+
+  /* ---------- areas ---------- */
+  function areas() {
+    var rows = P.areas.map(function (a, i) {
+      var ts = a.topics.filter(inScope);
+      return { a: a, ts: ts, s: score(ts), c: counts(ts), i: i };
+    }).filter(function (r) { return r.ts.length; });
+    if (state.sort === 'most') rows.sort(function (x, y) { return y.s - x.s || x.i - y.i; });
+    if (state.sort === 'least') rows.sort(function (x, y) { return x.s - y.s || x.i - y.i; });
+    var h = '<section class="card"><div class="controls"><div><h2>Areas</h2><p class="h2sub" style="margin:0">Grouped like MDN’s JavaScript Guide. Open an area to see its topics.</p></div>' +
+      '<div><label for="sort">Order</label><select id="sort">' +
+      opt('order', 'MDN order') + opt('most', 'Most progress') + opt('least', 'Biggest gaps') + '</select></div></div>';
+    rows.forEach(function (r) {
+      h += '<details class="area"><summary><span class="aname">' + esc(r.a.name) + '</span>' +
+        segBar(r.c, false, r.a.name) +
+        '<span class="apct">' + fmt(pct(r.s)) + '%</span><span class="acount">' + (r.c[3] + r.c[4]) + ' / ' + r.ts.length + ' practiced</span></summary>' +
+        '<ul class="topics">' + r.ts.map(topicRow).join('') + '</ul></details>';
+    });
+    return h + '</section>';
+  }
+  function opt(v, l) { return '<option value="' + v + '"' + (state.sort === v ? ' selected' : '') + '>' + l + '</option>'; }
+  function topicRow(t) {
+    var links = '';
+    if (t.note) links += '<a href="' + esc(t.note) + '">My note</a>';
+    if (t.mdn) links += '<a href="' + esc(mdnUrl(t.mdn)) + '" target="_blank" rel="noopener">MDN</a>';
+    var chip = state.scope === 'core' ? '' : '<span class="tier">' + TIER[t.tier] + '</span>';
+    return '<li><span class="tname">' + esc(t.name) + chip + '</span>' +
+      '<span class="links">' + links + '</span>' +
+      '<span class="lvl' + (t.level ? '' : ' zero') + '">' + pips(t.level) + esc(LV[t.level]) + '</span></li>';
+  }
+
+  /* ---------- focus ---------- */
+  function focus() {
+    var order = { c: 0, i: 1, a: 2 };
+    var rows = P.areas.map(function (a, i) {
+      var ts = a.topics.filter(inScope);
+      var next = ts.filter(function (t) { return t.level === 0; }).sort(function (x, y) { return order[x.tier] - order[y.tier]; })[0];
+      return { a: a, s: score(ts), started: ts.some(function (t) { return t.level > 0; }), next: next, i: i };
+    }).filter(function (r) { return r.next; });
+    rows.sort(function (x, y) { return (y.started - x.started) || (x.started ? y.s - x.s : x.i - y.i); });
+    var next = rows.slice(0, 6).map(function (r) {
+      return '<li>' + esc(r.next.name) + '<span class="why">' + esc(r.a.name) + (r.started ? ' (' + fmt(pct(r.s)) + '% there)' : ' (not started)') + '</span></li>';
+    }).join('');
+    var up = scopedTopics().filter(function (t) { return t.level === 1 || t.level === 2; })
+      .sort(function (x, y) { return x.level - y.level; }).slice(0, 8).map(function (t) {
+        return '<li>' + esc(t.name) + '<span class="why">' + LV[t.level] + ' → ' + LV[t.level + 1] + (t.note ? ' · notes exist' : ' · no note yet') + '</span></li>';
+      }).join('');
+    return '<div class="cols" style="margin-bottom:16px">' +
+      '<section class="card"><h2>Study next</h2><p class="h2sub">The next untouched topic in each area I’ve already started.</p><ul class="list">' + (next || '<li class="empty">Everything in this scope has been started.</li>') + '</ul></section>' +
+      '<section class="card"><h2>Ready to level up</h2><p class="h2sub">Topics I’ve seen or am still learning. Practice them to move them forward.</p><ul class="list">' + (up || '<li class="empty">Nothing waiting at Seen or Learning.</li>') + '</ul></section></div>';
+  }
+
+  /* ---------- history chart ---------- */
+  function history() {
+    var H = P.history;
+    var series = [{ k: 'core', n: 'Core path', sn: 'Core', c: 'var(--s1)' }, { k: 'all', n: 'All topics', sn: 'All', c: 'var(--s2)' }];
+    var avail = Math.max(300, Math.min(720, document.querySelector('.wrap').clientWidth - 72));
+    var narrow = avail < 520;
+    var Wd = avail, Ht = narrow ? 230 : 260, m = { l: 40, r: narrow ? 84 : 118, t: 14, b: 32 }, iw = Wd - m.l - m.r, ih = Ht - m.t - m.b;
+    var maxV = Math.max.apply(null, H.reduce(function (a, h) { return a.concat(series.map(function (s) { return h[s.k]; })); }, [1]));
+    var yMax = Math.min(100, Math.max(20, Math.ceil(maxV * 1.4 / 20) * 20));
+    var t0 = +new Date(H[0].date), t1 = +new Date(H[H.length - 1].date);
+    var X = function (h) { return m.l + (H.length < 2 || t1 === t0 ? iw / 2 : (new Date(h.date) - t0) / (t1 - t0) * iw); };
+    var Y = function (v) { return m.t + ih - v / yMax * ih; };
+    var g = '';
+    for (var i = 0; i <= 4; i++) {
+      var v = yMax / 4 * i;
+      g += '<line x1="' + m.l + '" x2="' + (Wd - m.r) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" stroke="' + (i ? 'var(--grid)' : 'var(--axis)') + '" stroke-width="1"/>' +
+        '<text class="tick" x="' + (m.l - 8) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + fmt(v) + '%</text>';
+    }
+    var step = Math.ceil(H.length / 6);
+    H.forEach(function (h, i) {
+      if (i % step === 0 || i === H.length - 1) g += '<text class="tick" x="' + X(h) + '" y="' + (Ht - 10) + '" text-anchor="middle">' + shortDate(h.date) + '</text>';
+    });
+    var ends = [];
+    series.forEach(function (s) {
+      var d = H.map(function (h, i) { return (i ? 'L' : 'M') + X(h) + ' ' + Y(h[s.k]); }).join(' ');
+      if (H.length > 1) g += '<path d="' + d + '" fill="none" stroke="' + s.c + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+      H.forEach(function (h) {
+        var tip = s.n + ' on ' + dateLabel(h.date) + ': ' + fmt(h[s.k]) + '%';
+        g += '<circle class="hit" cx="' + X(h) + '" cy="' + Y(h[s.k]) + '" r="14" tabindex="0" data-tip="' + esc(tip) + '" aria-label="' + esc(tip) + '"/>' +
+          '<circle class="pt" cx="' + X(h) + '" cy="' + Y(h[s.k]) + '" r="4" fill="' + s.c + '" stroke="var(--surface)" stroke-width="2" pointer-events="none"/>';
+      });
+      var last = H[H.length - 1];
+      ends.push({ s: s, y: Y(last[s.k]), x: X(last), v: last[s.k] });
+    });
+    ends.forEach(function (e, i) {
+      if (i && Math.abs(e.y - ends[i - 1].y) < 15) return;
+      g += '<text class="endlab" x="' + (e.x + 12) + '" y="' + (e.y + 4) + '">' + esc(narrow ? e.s.sn : e.s.n) + ' ' + fmt(e.v) + '%</text>';
+    });
+    var legend = series.map(function (s) { return '<span><i class="ln" style="background:' + s.c + '"></i>' + esc(s.n) + '</span>'; }).join('');
+    var rows = H.map(function (h) {
+      return '<tr><td>' + dateLabel(h.date) + '</td><td>' + fmt(h.core) + '%</td><td>' + fmt(h.coreInt) + '%</td><td>' + fmt(h.all) + '%</td><td>' + h.counts.slice(1).join(' / ') + '</td></tr>';
+    }).join('');
+    return '<section class="card"><h2>Progress over time</h2><p class="h2sub">' +
+      (H.length < 2 ? 'This is the first snapshot. The line appears once there are two.' : 'Understanding score at each snapshot.') + '</p>' +
+      '<div class="legend" style="margin:0 0 6px">' + legend + '</div>' +
+      '<svg class="chart" viewBox="0 0 ' + Wd + ' ' + Ht + '" role="img" aria-label="Line chart of understanding over time">' + g + '</svg>' +
+      '<details class="tbl"><summary>View as table</summary><table><thead><tr><th>Snapshot</th><th>Core</th><th>Core + Int.</th><th>All</th><th>Seen / Learning / Practiced / Explain</th></tr></thead><tbody>' + rows + '</tbody></table></details></section>';
+  }
+
+  /* ---------- milestones ---------- */
+  function milestones() {
+    var list = P.milestones.slice().sort(function (a, b) { return b.date.localeCompare(a.date); });
+    return '<section class="card"><h2>Milestones</h2><p class="h2sub">Moments worth remembering.</p><ul class="ms">' +
+      list.map(function (m) { return '<li><time datetime="' + m.date + '">' + dateLabel(m.date) + '</time>' + esc(m.text) + '</li>'; }).join('') + '</ul></section>';
+  }
+
+  /* ---------- render ---------- */
+  function render() {
+    var open = {};
+    document.querySelectorAll('details.area').forEach(function (d) { if (d.open) open[$('.aname', d).textContent] = 1; });
+    $('#app').innerHTML = hero() + composition() + history() + focus() + areas() + milestones();
+    document.querySelectorAll('details.area').forEach(function (d) { if (open[$('.aname', d).textContent]) d.open = true; });
+    $('#sort').addEventListener('change', function (e) { state.sort = e.target.value; render(); });
+    fitLabels();
+  }
+  function scopebar() {
+    $('#scopebar').innerHTML = Object.keys(SCOPES).map(function (k) {
+      return '<button type="button" data-scope="' + k + '" aria-pressed="' + (k === state.scope) + '">' + SCOPE_NAMES[k] + '</button>';
+    }).join('');
+  }
+  $('#scopebar').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    state.scope = b.getAttribute('data-scope'); scopebar(); render();
+  });
+
+  /* theme */
+  var root = document.documentElement;
+  try { var saved = localStorage.getItem('jsdash-theme'); if (saved) root.setAttribute('data-theme', saved); } catch (e) {}
+  $('#themebtn').addEventListener('click', function () {
+    var cur = root.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('jsdash-theme', next); } catch (e) {}
+  });
+
+  /* tooltip */
+  var tip = $('#tip');
+  function showTip(el, x, y) {
+    tip.textContent = el.getAttribute('data-tip');
+    tip.style.opacity = 1;
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    tip.style.left = Math.max(8, Math.min(innerWidth - w - 8, x - w / 2)) + 'px';
+    tip.style.top = (y - h - 12 < 8 ? y + 18 : y - h - 12) + 'px';
+  }
+  document.addEventListener('mousemove', function (e) {
+    var el = e.target.closest && e.target.closest('[data-tip]');
+    if (el) showTip(el, e.clientX, e.clientY); else tip.style.opacity = 0;
+  });
+  document.addEventListener('focusin', function (e) {
+    var el = e.target.closest && e.target.closest('[data-tip]');
+    if (!el) return;
+    var r = el.getBoundingClientRect();
+    showTip(el, r.left + r.width / 2, r.top);
+  });
+  document.addEventListener('focusout', function () { tip.style.opacity = 0; });
+  var rt, lastW = innerWidth;
+  addEventListener('resize', function () {
+    clearTimeout(rt);
+    rt = setTimeout(function () { if (Math.abs(innerWidth - lastW) > 40) { lastW = innerWidth; render(); } else fitLabels(); }, 120);
+  });
+
+  /* header + footer */
+  var lastH = P.history[P.history.length - 1];
+  $('#sub').innerHTML = 'Last updated ' + esc(dateLabel(P.updated)) + ' · topics follow <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noopener">MDN’s JavaScript docs</a>';
+  $('#foot').innerHTML = 'This page changes only when I ask Claude to update the dashboard. Notes live in <a href="../README.md">the notes index</a>; the update rules are in <a href="UPDATE-GUIDE.md">UPDATE-GUIDE.md</a>.';
+  scopebar(); render();
+})();
+</script>
+</body>
+</html>

@@ -8,6 +8,11 @@ This file records how the notes in this folder were started, what I'm learning, 
 - Jordan keeps a local copy on their Mac at `~/Desktop/Javascript Notes` and reads it in Zed. Keep the two in sync: this repo is authoritative.
 - Session-by-session conversation summaries are in `sessions/`.
 
+## Dashboard
+- `dashboard/index.html` is a progress dashboard (understanding %, composition by level, progress over time, areas, study-next list, milestones), built from MDN's JavaScript docs structure. See `dashboard/UPDATE-GUIDE.md`.
+- Jordan's rule: update the dashboard only when they explicitly ask. Don't touch it during normal note-writing.
+- First state recorded 2026-10-31: Core 16.4%, whole map 7.9%.
+
 ## About me
 - Learning JavaScript from scratch.
 - Currently taking Codecademy's Intro to JavaScript course.

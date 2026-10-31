@@ -11,6 +11,7 @@ This file records how the notes in this folder were started, what I'm learning, 
 ## Dashboard
 - `dashboard/index.html` is a progress dashboard (understanding %, composition by level, progress over time, areas, study-next list, milestones), built from MDN's JavaScript docs structure. See `dashboard/UPDATE-GUIDE.md`.
 - Jordan's rule: update the dashboard only when they explicitly ask. Don't touch it during normal note-writing.
+- Published copy (Claude artifact, republish manually after dashboard updates): https://claude.ai/artifact/C9xVDyGKDwBPtnw4jkL5Lb. GitHub Pages (if enabled) updates on push.
 - First state recorded 2026-10-31: Core 16.4%, whole map 7.9%.
 
 ## About me

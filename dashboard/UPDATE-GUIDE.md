@@ -56,10 +56,13 @@ node dashboard/tools/update.js snapshot [--date YYYY-MM-DD]    # run LAST: recor
 - `sessions/`: conversation summaries, including understanding checks.
 Reconcile the dashboard against these when asked to update.
 
-## After updating
-1. Open `dashboard/index.html` locally if possible, or at least run `node dashboard/tools/update.js show` to verify.
-2. Commit with a message like "Update dashboard: <date>" and push to `main`.
-3. Tell Jordan the new Core % and what moved, in a sentence or two.
+## Where the dashboard is published
+- **GitHub Pages** (once Jordan enables it: repo Settings, Pages, deploy from branch `main`, folder `/`): the dashboard is at `https://jordanmcgrew.github.io/Learning-Javascript/dashboard/`. It rebuilds automatically on every push, so no extra step.
+- **Claude artifact** (private copy): <https://claude.ai/artifact/C9xVDyGKDwBPtnw4jkL5Lb>, slug `5a54ab96-36af-418e-a06f-7b087a5c34a8`. It does **not** update on push. After a dashboard update, republish it: call `get_artifact` for the live version, then `publish_files` with `slug`, `base_version`, and the two files `dashboard/index.html` and `dashboard/progress-data.js` (served as `index.html` and `progress-data.js`).
+- Opening the file directly works too: after `git pull`, open `dashboard/index.html` in a browser.
 
-## Optional: view it online
-Enable GitHub Pages for this repo (Settings, Pages, deploy from `main`) and the dashboard will be available at `/dashboard/`. Not required.
+## After updating
+1. Run `node dashboard/tools/update.js show` to verify.
+2. Commit with a message like "Update dashboard: <date>" and push to `main`.
+3. Republish the Claude artifact (see above).
+4. Tell Jordan the new Core % and what moved, in a sentence or two.

@@ -215,6 +215,10 @@ th { color: var(--ink2); font-weight: 600; }
   function inScope(t) { return SCOPES[state.scope].tiers.indexOf(t.tier) >= 0; }
   function scopedTopics() { return P.areas.reduce(function (a, ar) { return a.concat(ar.topics.filter(inScope)); }, []); }
   function mdnUrl(p) { return P.mdnBase + p; }
+  // Opened from disk: relative links work. Hosted (GitHub Pages, artifact): link to the files on GitHub.
+  var GH = 'https://github.com/JordanMcgrew/Learning-Javascript/blob/main/';
+  var ONLINE = location.protocol !== 'file:';
+  function ghHref(p) { return ONLINE ? GH + p.replace(/^\.\.\//, '') : p; }
   function dateLabel(d) { return new Date(d + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); }
   function shortDate(d) { return new Date(d + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
 
@@ -299,7 +303,7 @@ th { color: var(--ink2); font-weight: 600; }
   function opt(v, l) { return '<option value="' + v + '"' + (state.sort === v ? ' selected' : '') + '>' + l + '</option>'; }
   function topicRow(t) {
     var links = '';
-    if (t.note) links += '<a href="' + esc(t.note) + '">My note</a>';
+    if (t.note) links += '<a href="' + esc(ghHref(t.note)) + '"' + (ONLINE ? ' target="_blank" rel="noopener"' : '') + '>My note</a>';
     if (t.mdn) links += '<a href="' + esc(mdnUrl(t.mdn)) + '" target="_blank" rel="noopener">MDN</a>';
     var chip = state.scope === 'core' ? '' : '<span class="tier">' + TIER[t.tier] + '</span>';
     return '<li><span class="tname">' + esc(t.name) + chip + '</span>' +
@@ -442,7 +446,8 @@ th { color: var(--ink2); font-weight: 600; }
   /* header + footer */
   var lastH = P.history[P.history.length - 1];
   $('#sub').innerHTML = 'Last updated ' + esc(dateLabel(P.updated)) + ' · topics follow <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noopener">MDN’s JavaScript docs</a>';
-  $('#foot').innerHTML = 'This page changes only when I ask Claude to update the dashboard. Notes live in <a href="../README.md">the notes index</a>; the update rules are in <a href="UPDATE-GUIDE.md">UPDATE-GUIDE.md</a>.';
+  var tgt = ONLINE ? ' target="_blank" rel="noopener"' : '';
+  $('#foot').innerHTML = 'This page changes only when I ask Claude to update the dashboard. Notes live in <a href="' + (ONLINE ? GH + 'README.md' : '../README.md') + '"' + tgt + '>the notes index</a>; the update rules are in <a href="' + (ONLINE ? GH + 'dashboard/UPDATE-GUIDE.md' : 'UPDATE-GUIDE.md') + '"' + tgt + '>UPDATE-GUIDE.md</a>.';
   scopebar(); render();
 })();
 </script>
